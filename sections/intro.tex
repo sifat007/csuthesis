@@ -1,0 +1,59 @@
+\chapter{Introduction}
+\label{chap:intro}
+%Many real-world applications have existing solutions that are NP-hard, which
+%in worst case can be exponential in time complexity.
+The 0/1 knapsack problem (0/1-KP, or just KP in this paper) is a well known,
+NP-hard combinatorial optimization problem with applications in production
+planning~\cite{Camargo-etal-COR-2012}, in risk balancing and assortment
+optimization~\cite{Rooderkerk-vanHeerde-EJOR-2016}, and in storage capacity
+limitation~\cite{Jolai-etal-AppMathComp-2007}.  It seeks to optimally fill a
+knapsack of a given capacity, $C$, from a set of $N$ objects.  There are two
+standard algorithmic approaches to solving it exactly: dynamic programming
+(DP) and branch-and-bound (BB).  The execution time of BB may vary with
+problem instances and this has led to very extensive research on techniques
+and heuristics that work well in ``practice.''  On the other hand, most
+standard implementations of DP build (at least conceptually) a table whose
+size is parameterized by only the number of objects ($N$) and the capacity
+($C$).  This leads to a complexity of $NC$, regardless of the specific
+weight-profit distribution.  Most knapsack solvers therefore use DP only to
+solve small knapsack sub-problems, leaving the ``heavy lifting'' to BB.
+  
+A so called, ``sparse'' DP algorithm (SKPDP) that performs fewer operations
+than the standard algorithm (KPDP) is known for a while~\cite{sanjay-asap94,
+  sanjay-irreg96} but to the best of our knowledge, there has been no
+quantitative analysis of its benefits.  Moreover, the authors proposed a
+``wavefront array'' (an early form of application-specific hardware
+accelerator) for this algorithm, but that too, was not actually implemented.
+
+Because 0/1-KP is ultimately an NP-Hard problem, it should be (and is)
+possible to generate pathological problem instances where no technique has
+significant advantage, and the execution time is exponential in the size of
+the input.\footnote{Note that one of the inputs to the KP is the integer $C$,
+  and its size, i.e., the number of bits needed to represent it, is $\lg C$.
+  This is why an execution time proportional to $C$ is considered
+  ``exponential.''}.
+
+In this paper, we first do a careful experimental evaluation of the potential
+benefits of SKPDP (see Section~\ref{sec:sparsity}).  We make the rather
+surprising observation that when $C$ is sufficiently large, the expected
+execution time (measured by counting the ``number of points generated'' by
+SKPDP) becomes invariant with $C$, thereby providing a exponential gain due to
+sparsity.
+
+Next, we propose two parallelization techniques (see
+Sections~\ref{sec:finegrain} and~\ref{sec:pipeline}) for implementing SKPDP on
+modern multicore CPUs.  The first one is a fine-grain technique where
+processors collaborate to compute the DP table, one row at a time.  In the
+second, ``coarse-grain'' algorithm, the (virtual) processors operate in a
+pipelined, ``producer-consumer'' fashion, each one responsible for computing
+all the elements in a row.  We also do a detailed analysis of the two
+algorithms identifying (i) the overheads of each scheme, and (ii) situations
+when they are compute/memory bound.  This leads us to hypothesize that the
+coarse grain parallelization is preferable in most situations.  We expect that
+our (ongoing) experimental evaluation (Section~\ref{sec:expts}) will confirm
+this, and expect to report it in a revised version of the paper.
+
+% \begin{quote}
+%   \textbf{\emph{This document is currently a place holder---a more complete
+%       version of the paper is coming soon.}}
+% \end{quote}

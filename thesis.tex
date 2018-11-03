@@ -1,0 +1,249 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Colorado State University LaTeX Thesis Template and Documentation
+%
+% by
+%   Elliott Forney
+%   2017
+%
+% This is free and unencumbered software released into the public domain.
+% 
+% Anyone is free to copy, modify, publish, use, compile, sell, or
+% distribute this software, either in source code form or as a compiled
+% binary, for any purpose, commercial or non-commercial, and by any
+% means.
+% 
+% In jurisdictions that recognize copyright laws, the author or authors
+% of this software dedicate any and all copyright interest in the
+% software to the public domain. We make this dedication for the benefit
+% of the public at large and to the detriment of our heirs and
+% successors. We intend this dedication to be an overt act of
+% relinquishment in perpetuity of all present and future rights to this
+% software under copyright law.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+% EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+% IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+% OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+% ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+% OTHER DEALINGS IN THE SOFTWARE.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Preamble
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% use the thesis document class
+% this is derived from the standard book class
+% and supports many of the same features
+\documentclass[master]{thesis}
+%\documentclass[master,showframe]{thesis} % showframe helps troubleshoot margins
+%\documentclass[doctor]{thesis} % for a dissertation
+%\documentclass[bachelor]{thesis} % for an honor's thesis
+
+% fonts
+% use times font by default but you can choose a
+% different font if you would like
+%\usepackage{fourier} % fourier is also a nice choice
+
+%\usepackage{helvet} % sans-serif helvetica works too
+%\renewcommand\familydefault{\sfdefault}
+
+% ams math packages
+\usepackage[cmex10]{amsmath}
+\usepackage{amsthm,amssymb}
+
+% graphics packages
+\usepackage[pdftex]{graphicx} % remove pdftex if you are not compiling to pdf
+\graphicspath{{./figures/}} % this places all graphics in the figures subdirectory
+
+% allowed graphics extensions
+% uncomment if you prefer to add extension in \includegraphics
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+% allows the creation of subfigures
+\usepackage[caption=false]{subfig}
+
+% book tables are simple and look nice
+\usepackage{booktabs}
+
+% for specifying urls and links
+\usepackage{url}
+\urlstyle{same} % same style as regular text
+
+% for algorithms --- SIFAT
+\usepackage[ruled]{algorithm2e}
+
+% Additional commands
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\B}[1]{ \textbf{#1} }
+\newcommand{\rmnum}[1]{\romannumeral #1}
+\newcommand{\Rmnum}[1]{\expandafter\@slowromancap\romannumeral #1@}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+% Title Page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% title of your thesis
+\title{Revisiting Sparse Dynamic Programming\\ for the 0/1 Knapsack Problem}
+
+% author's name
+\author{Tarequl Islam Sifat}
+
+% author's email address
+\email{tarequl@colostate.edu}
+
+% department name
+\department{Department of Computer Science}
+
+% semester of completion
+\semester{Spring 2019}
+
+% committee member names
+\advisor{Sanjay Rajopadhye}
+\coadvisor{Co-Advisor Name} % co-advisor is optional
+\committee{Louisnoel Pouchet} % as many committee entries as you need
+\committee{Edwin Chong}
+
+
+% Copyright Page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% here is an example of student copyright declaration
+% note that the \copyright command prints the copyright symbol,
+% so we use the name \mycopyright instead
+\mycopyright{%
+Copyright by Tarequl Islam Sifat 2018 \\
+All Rights Reserved
+}
+
+% here is an example of a creative commons copyright license
+% ask the graduate school for more information, if you are interested
+%\mycopyright{%
+%This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 United States License.
+%
+%\vspace{3em}
+%
+%To view a copy of this license, visit:
+%
+%\vspace{2em}
+%
+%\url{http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode}
+%
+%\vspace{3em}
+%
+%Or send a letter to:
+%
+%\vspace{2em}
+%
+%Creative Commons
+%
+%171 Second Street, Suite 300
+%
+%San Francisco, California, 94105, USA.
+%}
+
+% Abstract
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\abstract{%
+  The 0/1-Knapsack Problem (KP) is a classic NP-hard problem, with two common
+  approaches for solving it exactly: branch-and-bound (BB) and dynamic
+  programming (DP).  A so called, ``sparse'' DP algorithm (SKPDP).  We first
+  perform a careful empirical evaluation of SKPDP, and observe that for
+  ``large enough'' capacity, $C$, the number of operations performed by SKPDP is
+  invariant with respect to $C$.  This leads to the possibility of SKPDP
+  providing an exponential improvement over the standard DP, comparable to what
+  can be achieved by BB algorithms.
+
+  DP algorithms have very regular structure and are amenable to highly parallel
+  implementations.  We perform a roofline analysis of the sequential SKPDP, and
+  show that it is memory bandwidth bound.  We develop two parallelizations
+  (coarse-grain and fine-grain) of SKPDP on modern multicore processors (with
+  $P$ cores).  We similarly analyze both parallelizations, and show that the
+  coarse-grain version can reduce memory bandwidth requirements by a factor of
+  $P$.  We expect the results of our ongoing experiments to validate these analyses.
+}
+
+% Acknowledgments 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\acknowledgements{%
+I would like to thank the CSU Graduate Student Council and the CSU Graduate School for initiating, commissioning and supporting this project.  I would also like to thank Nicole Ramo for her support and ensuring that we followed through with this project to completion.  I would like to thank Leif Anderson, who created and supported the previous LaTeX template for a number of years.  Although I have never met Leif, his work was invaluable in the creation of this package and has helped many students get their thesis approved by the CSU graduate school.  Finally, I would like to thank everyone who helps to contribute to this package.  Your work will help many CSU graduate students to create professional, beautiful and compelling theses and dissertations using LaTex.  Last but not least, thank you to the creators and maintaners of \LaTeX{} for creating a fantastic typesetting tool.
+}
+
+% Metadata
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% consider using hyperref to insert pdf metadata and make links clickable
+% safe to remove if not using pdf or if it causes problems
+\usepackage[pdfpagelabels,pdfusetitle,colorlinks=false,pdfborder={0 0 0}]{hyperref}
+
+\begin{document} % preamble is complete, add any custom packages above
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frontmatter % starts preliminary pages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketitle              % insert title page
+\makemycopyright        % insert copyright page
+\makeabstract           % insert abstract page
+\makeacknowledgements   % insert acknowledgements page
+
+% any extra preliminary pages can be added here
+% below is an example of a dedication page
+% the dedication page is optional
+\prelimtocentry{Dedication} % add table of contents entry
+\begin{flatcenter} % center without extra space
+
+    % page title
+    DEDICATION
+
+    %\vspace{3em} % place at top
+    \vfill % or center on page
+
+    \noindent \textit{I would like to dedicate this thesis to my dog fluffy.}
+    \vfill % fill extra space at bottom
+\end{flatcenter}
+\newpage
+
+\tableofcontents    % insert table of contents
+\listoftables       % insert list of tables (optional)
+\listoffigures      % insert list of figures (optional)
+
+\mainmatter % starts thesis body
+
+\input{sections/intro}
+\input{sections/background}
+\input{sections/analysis}
+\input{sections/finegrain}
+\input{sections/pipeline}
+\input{sections/implementation-results}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\backmatter % starts unnumbered supplementary material
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% unsorted BibTeX style
+% check here for more:  https://www.sharelatex.com/learn/Bibtex_bibliography_styles
+\bibliographystyle{unsrt}
+% \bibliography{sample} % change sample to the name of your .tex file, e.g., thesis
+\bibliography{bib4,parallelizing,SKPDP}
+\appendix % starts the appendices
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{License}
+\label{appendix:license}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Have a nice day!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}

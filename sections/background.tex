@@ -1,0 +1,278 @@
+\chapter{Background}
+\label{chap:background}
+We now describe the background needed to make the paper self contained.  We
+also present prior related work on the problem.
+
+%\subsection{Dynamic Programming Solution of 0/1-KPDP}
+% Taken From: 0/1 Knapsack on Hardware: A Complete Solution (Background section)
+
+The 0/1 Knapsack Problem (KP) is formally
+defined~\cite{Kellerer-etal-KP-book-2004} as follows.  Given a set of $N$
+items, each  a known weight and a knapsack with a limited capacity $C$,
+where each item $i$ consists of the profit $p_i$ and weight $w_i$ , the
+objective of the 0/1-KP is to select items to achieve the maximum total profit
+without exceeding the capacity.  Mathematically,
+
+\begin{equation}
+  \begin{array}{ll}
+ \text{Maximize} & \quad {\displaystyle\sum^N_{i=1} p_i x_i} \\[5mm]
+\text{subject to}& \quad {\displaystyle\sum^N_{i=1} w_i x_i < C} \\
+ & \quad x_i \in \{0,1\}
+  \end{array}
+\end{equation}
+
+% The general dynamic programming approach to the knapsack problem is to
+% construct a table that is as wide as the capacity of the knapsack, and as
+% high as the cardinality of the set of items to choose from. Starting from
+% the element of the table that corresponds to the first item and a capacity
+% of 1, the table is completed by computing elements of the table according to
+% the recurrence equation:
+
+%\subsection{Existing algorithms for solving 0/1-KP}
+
+There is a significant body of work on algorithms and tools for KP, many of
+them described in standard textbooks~\cite{MT90, Hu-IPNF-book-1969,
+  Kellerer-etal-KP-book-2004, Cormen-etal-Algorithms-2009}.  Being an NP hard
+problem, many authors investigate heuristic and/or approximate algorithms,
+with or without bounds on the approximations.  As for exact solutions, there
+are two main algorithms: dynamic programming (DP) and branch-and-bound (BB).
+We focus on DP, which may be defined via the following recurrence.
+% First approach is to find the exact optimal solution which in worst case
+% will always have exponential time complexity. And the second approach is to
+% find approximate solutions that have significantly less time-complexity but
+% will not find the optimal solution every time.  Depending on the real-world
+% problem requirements either type of solution can be used.
+
+% Among the exact optimal solutions Dynamic Programming(DP) and
+% Branch-and-Bound(BB) solutions are widely known.
+
+\begin{equation} \label{eq:KPDP}
+  \begin{array}{l}
+    f(i,j) =  \\
+    \left\{
+    \begin{array}{ll}
+      0,  & \text{if } i=0 \text{ or }k=0\\
+      f(i,j-1),        & \text{if } i>0 \text{ and } j<w_i\\
+      \max(f(j,i-1),\\
+      p_i + f(j-w_i , i-1))   & \text{if } i>0 \text{ and } j \geq w_i
+    \end{array} \right.
+  \end{array}
+\end{equation}
+
+The function $f(i,j)$ denotes and defines the maximal profit that can be
+achieved with a knapsack of capacity $j$, drawing items out of only the first
+$i$ items.  The standard KPDP algorithm computes and stores this table in an
+order (possibly in parallel) ditated by the dependences of the recurrence
+doing $O(NC)$ work, and then performs an $O(N)$ work ``backtracking''
+traversal of the table in order to construct the actual solution.  The total
+execution time of KPDP is thus $O(NC)$
+
+In this paper, we exploit two known improvements to KPDP.  The first one
+reduces the space complexity to only $O(C)$ so that the whole table does not
+need not be saved (this comes with a two-fold increase in execution time). For
+the sake of completeness, we describe them here.
+
+\section{Memory efficient KPDP}
+
+The dynamic programming algorithm normally requires the entire table to be
+retained, and this is often unaccpetably large for large problems.  The memory
+efficient KPDP is an adaptation of an old trick to improve DP algorithms, that
+was first proposed by Hirshberg for the longest common subsequence (LCS)
+problem~\cite{Hirschberg-CACM-1975}.  The technique, described by Kellerer et
+al.~\cite[pp 46-50]{Kellerer-etal-KP-book-2004} and by Nibbelink et
+at.~\cite{sanjay-asap07} who also propose a hardware implementation on FPGAs,
+avoids backtracking by recursively, \emph{directly solving} subproblems of the
+form $\langle i, j, c \rangle$, that determine the optimal subset of the
+$i$-through-$j$-th (inclusive) objects for a capacity of $c$.  The top level
+call is thus to $\mathbf{Solve} \langle 1, N, C \rangle$, and
+$\mathbf{Solve} \langle i, j, c \rangle$ proceeds as follows:
+
+\begin{enumerate}
+\item \textbf{Base case:} if $i=j$, there is only one object, so choose it if
+  and only if it fits (i.e., $w_i\leq c$)
+\item \textbf{General case:} Let $m=\lfloor\frac{j-i}{2}\rfloor$.  Determine
+  (details below) a $c^*$ between 0 and $c$ such that in the (some) solution
+  to the subproblem $\langle i,j,c\rangle$ the combined sum of the weights of
+  the selected object in the ``first half'' i.e., $i$-through-$m$-th objects,
+  is $c^*$.  This is called the ``optimal split'' of the capacity $c$.  Now,
+  \begin{enumerate}
+  \item Recursively call $\mathbf{Solve} \langle i, m, c^* \rangle$, and
+  \item Recursively call $\mathbf{Solve} \langle m+1, j, (c-c^*) \rangle$
+  \end{enumerate}
+\end{enumerate}
+
+So the main issue is to determine $c^*$.  We first determine for the first
+``half'' of the objects, a vector $X[j]$ for $0\leq j\leq c$, the optimal
+profit that can be obtained with capacity $j$ (using only objects in that
+half).  We also construct a similar vector, $X'[j]$ for the other half.  This
+can be done in only $2c$ memory using recurrence~(\ref{eq:KPDP}), by maintianing
+only two rows of the table, and costs $(j-i)c$ work.  Using these two arrays,
+$c^*$ is given by
+\[ c^* = \mathrm{argmax}_{i=0}^{c} X[i]+X[c-i]
+\]
+
+The capacity arguments in all the calls at any levels of the recursion tree
+add up to $c$, and the number of objects considered halves level by level.
+Hence, the total work of this algorithm is $2NC$, just a two-fold increase.
+
+% \begin{flushleft}
+% \noindent\rule{9cm}{1pt}
+% \textbf{Algorithm 1} Classic Backtracking
+% \noindent\rule{9cm}{1pt}
+% \end{flushleft}
+% \begin{algorithmic}
+% \STATE $cap = C; i = N$
+% \WHILE {$i > 0$}
+% 		\STATE $bitV ector = booleanT able[cap]$
+% 		\STATE MASK OUT rightmost [$(i + 1)$to $N$ ] bits of $bitVector$
+% 		\STATE $i$ = index of rightmost 1 bit in ( MASKED ) $bitVector$
+% 		\STATE add $i$ to solution list
+% 		\STATE $i = i - 1$
+% 		\STATE $cap = cap - Weight[i]$
+% \ENDWHILE
+% \end{algorithmic}
+% \noindent\rule{9cm}{1pt}
+
+\section{Sparse KPDP (SKPDP)}
+
+Andonov and Rajopadhye~\cite{sanjay-asap96} and Dupont de Dinechin et
+al.~\cite{sanjay-irreg96} showed how, for the 0/1-KPDP and the UKP (the
+unboundend knapsack problem), the sequences representing the $i$-th row could
+be computed for the one representing the $(i-1)$-th row.  The work is similar
+to early ideas on a list based algorithm~\cite{Horowitz-Sahni-JACM-1974} that
+reduced the complexity of the subset-sum problem to $O(\sqrt{2^N})$, but uses
+\emph{streams} of \emph{index-value pairs}.  The main idea behind the SKPDP is
+the notion of monotomicity: it is clear that for any fixed $i$, the values of
+$f(i,j)$ are monotomically non-decreasing with respect to $j$.  This is
+because, in any subptooblem, we can do no worse than we are currently doing by
+increasing capacity.  This is illustrated in Table~\ref{tab:sparsity1} which
+shows the DP table for a KP instance where the four items have weights,
+$5, 4, 6, 1$ and profits, $7, 8, 9, 4$, respectively.  The boxed entries are
+the first occurrence of a value in a given row.  Because of sparsity, one may
+enviage a ``sparse'' representation, where all the table entries are not
+computed, rather only the ``points of inflection'' are explicitly evaluated.
+To do this, we use a representation for the table in the form of
+``index-value'' pairs: the entire $i$-th row is represented by a list, of the
+form, $\langle j, f(i,j)\rangle$, as shown in Table \ref{tab:sparsity2}.
+
+\begin{table}[htbp]
+\caption{A 0/1-KPDP Table}
+\begin{center}
+\begin{tabular}{*{12}{|c}|}
+  \hline
+  \textbf{Items}&\multicolumn{10}{|c|}{Capacity} \\
+  \cline{2-12} & \B{0} & \B{1}& \B{2}& \B{3}& \B{4}& \B{5}& \B{6}& \B{7}& \B{8}& \B{9}& \B{10} \\
+  \hline
+  \textbf{1}& 0 & 0& 0& 0& 0& \boxed{7}& 7& 7& 7& 7& 7 \\
+  \hline
+  \textbf{2}& 0 & 0& 0& 0& \boxed{8}& 8& 8& 8& 8& \boxed{15}& 15 \\
+  \hline
+  \textbf{3}& 0 & 0& 0& 0& \boxed{8}& 8& \boxed{9}& 9& 9& \boxed{15}& \boxed{17} \\
+  \hline
+  \textbf{4}& 0 & \boxed{4}& 4& 4& \boxed{8}& \boxed{12}& 12& \boxed{13}& 13& \boxed{15}& \boxed{19} \\
+  \hline
+\end{tabular}
+\label{tab:sparsity1}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\caption{A SKPDP Table}
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Items}& \\
+\hline 
+  \textbf{1}& $\langle 0, 0\rangle$, $\langle 5, 7\rangle$  \\
+  \hline
+  \textbf{2}& $\langle 0, 0\rangle$, $\langle 4, 8\rangle$, $\langle 9, 15\rangle$ \\
+  \hline
+  \textbf{3}& $\langle 0, 0\rangle$, $\langle 4, 8\rangle$, $\langle 6, 9\rangle$, $\langle 9,
+              15\rangle$, $\langle 10, 17\rangle$ \\
+  \hline
+  \textbf{4}& $\langle 0, 0\rangle$, $\langle 1, 4\rangle$, $\langle 4, 8\rangle$, $\langle 5,
+              12\rangle$, $\langle 7, 13\rangle$, $\langle 9, 15\rangle$,
+              $\langle 10, 19\rangle$ \\
+  \hline
+\end{tabular}
+\label{tab:sparsity2}
+\end{center}
+\end{table}
+
+\section{Add-Merge-Kill}
+
+Andonov and Rajopadhye~\cite{sanjay-asap96} and Dupont de Dinechin et
+al.~\cite{sanjay-irreg96} proposed to implementat the SKPDP algorithm on an
+early form of hardware accelerator called a WAP (Wavefront Array
+Processor~\cite{kung-sy-vlsi, kung-sy-etal}).  However, because the memory
+efficient technique had not been discovered at that time, it remained an
+unrealisitic paper design, because the total number of data transfers that the
+accelerator needed to perform was the same order as the number of
+computations.
+
+The technique Add-Merge-Kill (AMK) is the core of SKPDP that generates the sparse table row-by-row. Let's take the 3\textsuperscript{rd} row of the Table (\ref{tab:sparsity2}),
+\begin{equation}
+\label{eq:list1}
+\langle 0, 0\rangle, \langle 4, 8\rangle, \langle 6, 9\rangle, \langle 9, 15\rangle, \langle 10, 17\rangle
+\end{equation}
+
+This list of pairs (sparse row) is representative of the 3\textsuperscript{rd} row of the Table (\ref{tab:sparsity1}), that represents the maximum profits of taking the first 3 elements of the problem instance given capacities ranging from $1$ to $10$. From the 3\textsuperscript{rd} row to generate the 4\textsuperscript{th} row that also takes the 4\textsuperscript{th} element of the problem instance into consideration we first add the the weight and profit of the 4\textsuperscript{th} element, i.e. $\langle 1,4 \rangle$, to each pairs of the list (\ref{eq:2}).
+We get,
+\begin{equation}
+\label{eq:list2}
+\langle 1, 4\rangle, \langle 5, 12\rangle, \langle 7, 13\rangle, \langle 10, 19\rangle, \langle 11, 21\rangle
+\end{equation}
+
+Now applying the algorithm \ref{algo:MK} below to the lists (\ref{eq:list1}) and (\ref{eq:list2}) to get the 4\textsuperscript{th} row. 
+
+\begin{equation}
+\label{eq:list3}
+\langle 0, 0\rangle, \langle 1, 4\rangle, \langle 4, 8\rangle, \langle 5,
+              12\rangle, \langle 7, 13\rangle, \langle 9, 15\rangle,
+              \langle 10, 19\rangle
+\end{equation}
+
+\begin{algorithm}
+
+\SetAlgoLined
+\KwResult{(i+1)-th row: $S_{i+1}$}
+ $S_{i} \leftarrow $ current row\; 
+ $S_{i+1} \leftarrow $ empty\;
+ $S'_{i} \leftarrow $ $\langle weights[i], profits[i] \rangle$ added to each pairs of $S_i$\;
+ $j,k,p \leftarrow 0,0,0$\;
+ \While{the end of $S_i$ not reached}{
+  \uIf{$S_i[j].weight < S_i[k].weight$}{
+   	\eIf{$S_i[j].profit < S_i[k].profit$}{
+   		$S_{i+1}[p] \leftarrow  S_i[j]$\;
+   		$p \leftarrow p+1$\;
+   		$j \leftarrow j+1$\;
+   	} 	
+	{
+   		$k \leftarrow k+1$\;   	
+   	}
+   }
+   \uElseIf{$S_i[j].weight > S_i[k].weight$}{
+   	\eIf{$S_i[j].profit > S_i[k].profit$}{
+   		$S_{i+1}[p] \leftarrow  S_i[k]$\;
+   		$p \leftarrow p+1$\;
+   		$k \leftarrow k+1$\;
+   	} 	
+	{
+   		$j \leftarrow j+1$\;   	
+   	}
+  }
+  \Else{
+   	\eIf{$S_i[j].profit > S_i[k].profit$}{
+   		$k \leftarrow k+1$\;
+   	} 	
+	{
+   		$j \leftarrow j+1$\;   	
+   	}  	
+  }
+ }
+ \caption{Merge-Kill \label{algo:MK}}
+\end{algorithm}
+
+
+
+

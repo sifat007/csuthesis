@@ -1,0 +1,90 @@
+\chapter{Implementation and Results}
+\label{chap:implementation-results}
+
+\section{Experimental Setup}
+We do all our experiments on linux machines with \textit{Intel(R) Xeon(R) CPU E5-2650 v2} processors running at 2.60GHz with 32GB of RAM. The compiler used is \textit{Intel C++ Compiler} version 19.0.0.117. We used \textit{OpenMP } for implementing  prallelization on CPU.
+
+
+\section{Implementation details of sequential implementation of SKPDP algorithm}
+As we are not backtracking and instead using Divide and Conquer to find the complete solution, we allocate two arrays of pairs(critical points) of size $C$. Let, $(w_i,p_i)$ represent the weight and profit pair of the $i$-th element. We initially put $(w_0,p_0)$ into one of the allocated arrays. Then we apply the \textit{Add-Merge-Kill} process described in section --REFERENCE-- and store the output in the other allocated array. We iteratively find the last row of the sparse table.
+
+
+\section{Implementation details of Fine-grained parallelization of SKPDP algorithm}
+For this parallelism to be applicable on a row, the row must conform to the criteria below,
+
+\begin{equation}
+\label{eq: fine-grained-criteria}
+l_{i-1} > \alpha P w_i
+\end{equation}
+where $l_{i-1}$ is length of the last calculated row, $\alpha$ is a parameter chosen to tune the parallelization strategy, $P$ is number of intended threads to be used (ideally equal to the number of processors) and $w_i$ is the weight of the current item to be taken into account for maximizing the total profit.
+
+Topmost rows of the SKPDP are calculated exactly as the sequential version of SKPDP until (\ref{eq: fine-grained-criteria}) is true. All subsequent rows are computed in $P$ separate chunks on $P$ different processors. So, we allocate a total of $2P$ additional arrays of pairs(structures) of size $C$. When we split the calculation of a single row between multiple threads we end up generating some extra point at each thread. So, ones all the threads are finished computing their own chunk of a row, we do a barrier synchronization and run a process called stitching between the $P$ threads. Stitching gets rid of the points that are dominated by points in the adjacent chunk. There are $P-1$ different stitching points which can be run on parallel on $P-1$ different threads. The process of stitching between two threads takes $2w_i$ iterations in the worst case ($2P w_i$ for the whole $i$-th row).
+
+
+
+\section{Implementation details of Coarse-grained/Pipelined of SKPDP algorithm}
+
+
+
+[TODO]
+
+
+
+\begin{table}[htbp]
+\caption{Summery of our results}
+\begin{center}
+\begin{tabular}{|p{.23\columnwidth}|p{.23\columnwidth}|p{.23\columnwidth}|p{.23\columnwidth}|}	
+\hline
+\textbf{Implementation}& \textbf{Expectation} & \textbf{Observation} & \textbf{Reasoning} \\
+\hline
+\textbf{Sequential SKPDP} 
+& Large problem instance with $N \ll C$ should show significant performance improvement over SKPDP.
+& We observe exponential improvement of performance of SKPDP when $N \ll C$.
+& Observation reflects our expectation.\\
+\cline{2-4}
+& Problem instance with stronger correlation between the wights and profits shows lowest sparsity.
+& As the 0/1-knapsack gets closer to a Subset-Sum problem, we observe less sparsity.
+& Observation reflects our expectation.\\
+\cline{2-4}
+& The ratio of elements that fit into the capacity on average may have impact in the sparsity.
+& When the weights are relatively larger (less elements fit into the capacity) we observe more sparsity.
+& Observation reflects our expectation.\\
+\hline
+
+\textbf{Fine-grained parallelization of SKPDP} 
+& The overhead of stitching the separate parts could potentially nullify the benefits of parallelism.
+& Observations so far proves our suspicion and the parallel version seem to perform a constant factor worse than the sequential version.
+& As suspected the overhead of stitching  does seem to nullify the benefits of parallelism.\\
+\cline{2-4}
+& $W_i$ should be sorted in decreasing order to maximize parallelization.
+& We do not observe expected performance gain, but this detail have important implications in our implementation.
+& The reason for this is yet to be explored.\\
+\cline{2-4}
+& Top-most rows of the sparse table are too small to be parallelized using this method. The parameter $\alpha$ dictates when we start parallelizing (i.e. at what point a row of the sparse table becomes large enough to be parallelized). We must tune $\alpha$ perfectly for the best performance.
+& Smaller value of $\alpha$ causes higher overhead of stitching and larger value of $\alpha$ cause most rows to be not palatalized at all.
+& Observation does reflect our expectation.\\
+
+\hline
+
+\textbf{Coarse-grained/Pipelined parallelization of SKPDP} 
+& Block size (i.e. number of data points shared between producer and consumer thread at one time) is significantly important parameter.
+& Observation seem to verify our expectation and block size is an important tune-able  parameter for every problem instance.
+& Too small of a block size causes more block synchronization overhead and too large of a block size hinders parallelism\\
+\cline{2-4} 
+& Optimal number of threads $P$ to be used should be the number of cores available in the system.
+& We observe that we get better performance when the number threads $P$ is larger than the number of cores in the system.
+& The reason for this is yet to be explored.\\
+\cline{2-4} 
+& We expect $P$ fold performance improvement.
+& We never observe $P$ fold performance improvement and unlike the sequential version the performance does not seem to become invariant with capacity when $n \ll C$.
+& In theory this implementation should not do exponentially worse than the sequential version. More experiments are needed to figure out the reason behind this phenomenon. \\
+\hline
+
+
+
+
+\hline
+\end{tabular}
+\label{tab:result-summery}
+\end{center}
+\end{table}

@@ -1,0 +1,108 @@
+\chapter{Empirical Analysis of Complexity}
+
+\label{chap:analysis}
+
+\section{Generation of Problem Instances}
+
+There has been 
+
+To properly analyze SKPDP it's important to make sure that the knapsack problem instances that we use are not contrived and covers the input domain. We also have to generate the problem instances systematically when we are trying to analyze the impact of a particular attribute (i.e. correlation between weight and profit values) of problem instances on SKPDP. The attributes of the problem instances that we mainly focus on are, 
+
+\begin{itemize}
+\item The portion of the items that fit into the capacity
+\item The correlation between the weights and profits
+\item The distribution of the weights
+\end{itemize}
+
+We discuss this attributes below.
+\subsection{The portion of the items that fit into the capacity}
+
+
+\subsection{The correlation between the weights and profits}
+
+\subsection{The distribution of the weights}
+
+
+
+
+
+
+
+\section{Potential Gain}
+We explore the computational gain of the SKPDP over the conventional 0/1-KPDP.
+For SKPDP to be useful, the number of operations done by the sparse algorithm
+must be significantly less that the dense version.  The number of iterations
+needed to generate one row of the sparse table is equal or less than twice the
+size (number of pairs) of the previous row.  So, the total number of
+operations needed to generate the whole sparse table is a constant factor of
+the total number of pairs/critical points in the generated sparse table.  The
+more sparse the sparse table is for a certain problem instance the more
+performance gain we can expect.  We define potential performance gain as,
+
+\begin{align}
+  \label{eq:2}
+  \text{gain} &= 1 - \frac{\text{no.\ of iterations needed for
+                SKPDP}}{\text{no.\ of iterations needed for 0/1-KPDP}}
+                \nonumber \\
+              &\approx 1 - \frac{\text{no. of iterations needed for
+                SKPDP}}{2nC} \\
+  [\text{because}&\text{, we are using memory efficient version of KPDP}]
+                   \nonumber
+\end{align}
+
+Notice that according to (\ref{eq:2}), maximum performance gain we can
+theoretically achieve is 1, positive values of gain implies that SKPDP should
+perform better than conventional 0/1-KPDP and negative values of gain implies
+that SKPDP should perform worse that conventional 0/1-KPDP.
+
+In figure \ref{fig:gain1} we plot potential gain against problem instances
+with capacity ranging from $2^{12}$ to $2^{30}$ and number of items ranging
+from $2^7$ to $2^{12}$.  Please note that to generate the plot we used
+$(18*5=)\ 90$ different 0/1-Knapsack problem instances each with items having
+strongly-correlated weights and profits; a log-normal distribution of the
+weight/profit values and where approximately one-eighth of the items fit into
+the capacity (i.e., average weight is $8n/C$).
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=1\columnwidth]{images/gain1.png}}
+\caption{Potential gain due to sparsity}
+\label{fig:gain1}
+\end{figure}
+
+From the Figure \ref{fig:gain1} it is apparent that for large problems
+instances (where capacity $C$ is much larger than $n$) we can expect
+significant performance gain using SKPDP due to reduction in the number of
+necessary computation to generate the sparse table.
+
+\section{Empirical Results}
+To prove our hypothesis that SKPDP performs significantly better for problem
+instance where $n \ll C$ we do a log-log plot of the execution time vs the
+capacity in Figure \ref{fig:time_vs_c1}.  Please note that the problem
+instances in Figure \ref{fig:time_vs_c1} have the same attributes as of the
+ones from the Figure \ref{fig:gain1}.  For problem instances with larger
+capacity, the weight values are also proportionally larger to make sure that
+the number of elements that fit into the capacity is constant for all problem
+instances.  This is to make sure that our problem instances are not contrived.
+ 
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=1\columnwidth]{images/time_vs_C1.png}}
+\caption{Execution times of SKPDP for different instances of knapsack problem}
+\label{fig:time_vs_c1}
+\end{figure}
+
+
+In the Figure \ref{fig:time_vs_c1}, the solid lines represent the execution times of SKPDP and the dashed lines represent the execution times of conventional 0/1-KPDP. We can observe that while the execution times of 0/1-KPDP stays linear with capacity $C$ (i.e. exponential with input size $log(C)$), the execution times of SKPDP becomes invariant with capacity. So, for problem instances where $n \ll C$, we can achieve exponential performance gain using SKPDP over 0/1-KPDP. SKPDP is a constant factor worse compared to 0/1-KPDP where $C$ is not large enough.
+
+In the Figure \ref{fig:twin_vs_c1}, we can observe the correlation between the iteration count and execution time of our implementation SKPDP. It is apparent from the figure \ref{fig:twin_vs_c1} that the iteration count is correlated to the execution time of SKPDP.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=1\columnwidth]{images/twin_vs_C1.png}}
+\caption{Comparing execution times and Op counts of SKPDP for different instances of knapsack problem}
+\label{fig:twin_vs_c1}
+\end{figure}
+
+The question now is, how do we know if a problem instance has large enough value of $C$ for SKPDP to be useful over conventional KPDP? This threshold value depends on the number items ($n$), the correlation between the weights and profits and the amount elements fit into the capacity. 
+
+
+
+
