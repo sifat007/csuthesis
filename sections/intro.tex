@@ -34,14 +34,14 @@ the input.\footnote{Note that one of the inputs to the KP is the integer $C$,
   ``exponential.''}.
 
 In this paper, we first do a careful experimental evaluation of the potential
-benefits of SKPDP (see Section~\ref{sec:sparsity}).  We make the rather
+benefits of SKPDP (see Chapter~\ref{chap:analysis}).  We make the rather
 surprising observation that when $C$ is sufficiently large, the expected
 execution time (measured by counting the ``number of points generated'' by
 SKPDP) becomes invariant with $C$, thereby providing a exponential gain due to
 sparsity.
 
 Next, we propose two parallelization techniques (see
-Sections~\ref{sec:finegrain} and~\ref{sec:pipeline}) for implementing SKPDP on
+Chapters~\ref{chap:finegrain} and~\ref{chap:pipeline}) for implementing SKPDP on
 modern multicore CPUs.  The first one is a fine-grain technique where
 processors collaborate to compute the DP table, one row at a time.  In the
 second, ``coarse-grain'' algorithm, the (virtual) processors operate in a
@@ -49,9 +49,7 @@ pipelined, ``producer-consumer'' fashion, each one responsible for computing
 all the elements in a row.  We also do a detailed analysis of the two
 algorithms identifying (i) the overheads of each scheme, and (ii) situations
 when they are compute/memory bound.  This leads us to hypothesize that the
-coarse grain parallelization is preferable in most situations.  We expect that
-our (ongoing) experimental evaluation (Section~\ref{sec:expts}) will confirm
-this, and expect to report it in a revised version of the paper.
+coarse grain parallelization is preferable in most situations.
 
 % \begin{quote}
 %   \textbf{\emph{This document is currently a place holder---a more complete

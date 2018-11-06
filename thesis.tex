@@ -165,13 +165,16 @@ All Rights Reserved
   $P$ cores).  We similarly analyze both parallelizations, and show that the
   coarse-grain version can reduce memory bandwidth requirements by a factor of
   $P$.  We expect the results of our ongoing experiments to validate these analyses.
+  
+  
+  \textbf{[ Written by Sanjay for the IPDPS paper; unchanged and may need some modifications ]}
 }
 
 % Acknowledgments 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \acknowledgements{%
-I would like to thank the CSU Graduate Student Council and the CSU Graduate School for initiating, commissioning and supporting this project.  I would also like to thank Nicole Ramo for her support and ensuring that we followed through with this project to completion.  I would like to thank Leif Anderson, who created and supported the previous LaTeX template for a number of years.  Although I have never met Leif, his work was invaluable in the creation of this package and has helped many students get their thesis approved by the CSU graduate school.  Finally, I would like to thank everyone who helps to contribute to this package.  Your work will help many CSU graduate students to create professional, beautiful and compelling theses and dissertations using LaTex.  Last but not least, thank you to the creators and maintaners of \LaTeX{} for creating a fantastic typesetting tool.
+%TODO
 }
 
 % Metadata
@@ -204,7 +207,7 @@ I would like to thank the CSU Graduate Student Council and the CSU Graduate Scho
     %\vspace{3em} % place at top
     \vfill % or center on page
 
-    \noindent \textit{I would like to dedicate this thesis to my dog fluffy.}
+    %\noindent \textit{I would like to dedicate this thesis to my dog fluffy.}
     \vfill % fill extra space at bottom
 \end{flatcenter}
 \newpage
@@ -220,7 +223,10 @@ I would like to thank the CSU Graduate Student Council and the CSU Graduate Scho
 \input{sections/analysis}
 \input{sections/finegrain}
 \input{sections/pipeline}
-\input{sections/implementation-results}
+%\input{sections/implementation-results}
+\input{sections/rank-convergence}
+\input{sections/future-work}
+\input{sections/conclusion}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -239,8 +245,11 @@ I would like to thank the CSU Graduate Student Council and the CSU Graduate Scho
 \appendix % starts the appendices
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{License}
-\label{appendix:license}
+\chapter{Experimental Setup}
+\label{appendix:setup}
+We do all our experiments using C programming language on linux machines with \textit{Intel(R) Xeon(R) CPU E5-2650 v2} processors running at 2.60GHz with 32GB of RAM. The compiler used is \textit{Intel C++ Compiler} version 19.0.0.117. We used \textit{OpenMP } for implementing  prallelization on CPU. We used Intel VTune 2019 performance analysis tool to analyze our programs.
+
+\textbf{[Not sure where else to put it, give that I did not write a separate results section]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

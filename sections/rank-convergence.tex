@@ -1,0 +1,57 @@
+\chapter{Prospect of using Rank Convergence on KPDP}
+\label{chap:rank convergence}
+
+Another technique unrelated to SKPDP, named Rank Convergence \cite{Maleki:2016:EPU:3001840.2983553}, has been used to successfully parallelize other  dynamic programming algorithms (i.e. Longest Common Sub-sequence). We explored the potential of using Rank Convergence for parallelizing 0/1-KPDP.
+
+
+
+\paragraph{Background}
+When calculating the dynamic programming table of KPDP, let's say, $\mathbf{A}_i$ is the square (of size $C\times C$) transformation matrix in the \textit{Tropical semiring}($\{{\rm I\!R}\cup \infty\},max,+,-\infty,0$) that generates the $i$-th row($\mathbf{s}_i$) when applied to the $(i-1)$-th row ($\mathbf{s}_{i-1}$). Similarly, $\mathbf{A}_j$ generates the $j$-th row($\mathbf{s}_j$) of the dynamic programming table. \\
+So, the recurrence relation for the dynamic programming becomes,
+\[
+\mathbf{s}_i = \mathbf{A}_i \odot \mathbf{s}_{i-1}
+\]
+So, given the first row ($\mathbf{s}_0$), we can calculate the last row ($\mathbf{s}_N$) of the dynamic programming table like this,
+\[
+\mathbf{s}_N = \mathbf{A}_N \odot \mathbf{A}_{N-1} \odot  \dots \mathbf{A}_2 \odot \mathbf{A}_1 \odot  \mathbf{s}_0
+\]
+
+\noindent
+Let's define $\mathbf{M}_{i \rightarrow j }$ as partial product of the matrices defined for the stages $j \geq i$, which is given by,
+\[
+\mathbf{M}_{i \rightarrow j } =  \mathbf{A}_j \odot  \dots \mathbf{A}_{i-1} \odot \mathbf{A}_i 
+\]
+
+\noindent
+We want to prove that $\mathbf{M}_{1 \rightarrow N }=\mathbf{A}_N \odot \mathbf{A}_{N-1} \odot  \dots \mathbf{A}_2 \odot \mathbf{A}_1$ is full rank, i.e. 01-Knapsack does not have the rank convergence property.
+\\
+For mathematical formulation we need a way to represent $\mathbf{A}_i$. The diagonal values of $\mathbf{A}_i$ are zeros and there is a sub-diagonal shifted to the left by $w_i$ with values $p_i$. All other indices are set to $-\infty$. In more formal way, $\mathbf{A}_i$ is a $C \times C$ matrix such that 
+
+\begin{align*}
+\forall i=j \quad &\mathbf{A}_{ij} = 0 \\
+\forall i=j+w_i \quad &\mathbf{A}_{ij} = p_{i} \\
+\text{otherwise,} \quad  &\mathbf{A}_{ij} = -\infty 
+\end{align*}
+\textbf{Matrix Rank} The rank of a matrix $M_{m\times n}$ , denoted by $rank(M)$, is the smallest number $r$ such that there exist
+matrices $X_{m\times r}$ and $Y_{r\times n}$ whose product is $M_{m\times n}$. This also called \textit{Barvinok rank}.
+
+
+\section{Theorem: $\mathbf{M}_{1 \rightarrow {N}}$ is full rank}
+\textbf{Proof by induction: } For the base case, we show that $\mathbf{M}_{1 \rightarrow 2 } = \mathbf{A}_1$ is full rank.\\
+$\mathbf{A}_1$ is a lower triangular matrix. So, $\mathbf{A}_1$ is full rank. Same argument holds for $\mathbf{A}_i$, for all $i \in [1,N]$. Thus, $\mathbf{M}_{1 \rightarrow 2 } = \mathbf{A}_1$ is a full rank matrix.
+\\
+\\
+\noindent
+For the inductive step, let's say $\mathbf{M}_{1 \rightarrow i }$ is a lower triangular matrix. We have to show that $\mathbf{M}_{1 \rightarrow i+1 }$ is also a lower triangular matrix, where $ i \in [2, N-1]$. 
+\\ 
+According to the property of matrix multiplication, when two lower triangular matrices are multiplied we get another lower triangular matrix. This property holds for \textit{Tropical semirings}. Because, $\mathbf{M}_{1 \rightarrow i }$ is a lower triangular matrix and $\mathbf{A}_{i}$ is also a lower triangular matrix,
+\[
+\mathbf{M}_{1 \rightarrow {i+1}} =  \mathbf{A}_{i}\odot \mathbf{M}_{1 \rightarrow {i+1}}
+\]
+must is also be a lower triangular matrix. \\
+Thus, by induction, $\mathbf{M}_{1 \rightarrow {N}}$ is a lower triangular matrix which makes it full rank. $\blacksquare$ \\
+\\
+%\textbf{Proposition: } In $\mathbf{M}_{1 \rightarrow {i}}$ if there are $k$ \textbf{unique} items in the $i$-th row of the dynamic programming table then there are $k-1$ sub-diagonals with unique non-sink values.
+%\\
+
+

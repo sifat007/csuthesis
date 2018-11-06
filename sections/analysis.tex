@@ -53,7 +53,7 @@ performance gain we can expect.  We define potential performance gain as,
                 SKPDP}}{\text{no.\ of iterations needed for 0/1-KPDP}}
                 \nonumber \\
               &\approx 1 - \frac{\text{no. of iterations needed for
-                SKPDP}}{2nC} \\
+                SKPDP}}{2NC} \\
   [\text{because}&\text{, we are using memory efficient version of KPDP}]
                    \nonumber
 \end{align}
@@ -69,7 +69,7 @@ from $2^7$ to $2^{12}$.  Please note that to generate the plot we used
 $(18*5=)\ 90$ different 0/1-Knapsack problem instances each with items having
 strongly-correlated weights and profits; a log-normal distribution of the
 weight/profit values and where approximately one-eighth of the items fit into
-the capacity (i.e., average weight is $8n/C$).
+the capacity (i.e., average weight is $8N/C$).
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width=.8\columnwidth]{images/gain1.png}}
@@ -78,13 +78,13 @@ the capacity (i.e., average weight is $8n/C$).
 \end{figure}
 
 From the Figure \ref{fig:gain1} it is apparent that for large problems
-instances (where capacity $C$ is much larger than $n$) we can expect
+instances (where capacity $C$ is much larger than $N$) we can expect
 significant performance gain using SKPDP due to reduction in the number of
 necessary computation to generate the sparse table.
 
 \section{Empirical Results}
 To prove our hypothesis that SKPDP performs significantly better for problem
-instance where $n \ll C$ we do a log-log plot of the execution time vs the
+instance where $N \ll C$ we do a log-log plot of the execution time vs the
 capacity in Figure \ref{fig:time_vs_c1}.  Please note that the problem
 instances in Figure \ref{fig:time_vs_c1} have the same attributes as of the
 ones from the Figure \ref{fig:gain1}.  For problem instances with larger
@@ -99,7 +99,7 @@ instances.  This is to make sure that our problem instances are not contrived.
 \end{figure}
 
 
-In the Figure \ref{fig:time_vs_c1}, the solid lines represent the execution times of SKPDP and the dashed lines represent the execution times of conventional 0/1-KPDP. We can observe that while the execution times of 0/1-KPDP stays linear with capacity $C$ (i.e. exponential with input size $log(C)$), the execution times of SKPDP becomes invariant with capacity. So, for problem instances where $n \ll C$, we can achieve exponential performance gain using SKPDP over 0/1-KPDP. SKPDP is a constant factor worse compared to 0/1-KPDP where $C$ is not large enough.
+In the Figure \ref{fig:time_vs_c1}, the solid lines represent the execution times of SKPDP and the dashed lines represent the execution times of conventional 0/1-KPDP. We can observe that while the execution times of 0/1-KPDP stays linear with capacity $C$ (i.e. exponential with input size $log(C)$), the execution times of SKPDP becomes invariant with capacity. So, for problem instances where $N \ll C$, we can achieve exponential performance gain using SKPDP over 0/1-KPDP. SKPDP is a constant factor worse compared to 0/1-KPDP where $C$ is not large enough.
 
 In the Figure \ref{fig:twin_vs_c1}, we can observe the correlation between the iteration count and execution time of our implementation SKPDP. It is apparent from the figure \ref{fig:twin_vs_c1} that the iteration count is correlated to the execution time of SKPDP.
 

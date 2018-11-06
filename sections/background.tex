@@ -200,7 +200,7 @@ form, $\langle j, f(i,j)\rangle$, as shown in Table \ref{tab:sparsity2}.
 \end{table}
 
 \section{Add-Merge-Kill}
-
+\label{sec:merge-kill}
 Andonov and Rajopadhye~\cite{sanjay-asap96} and Dupont de Dinechin et
 al.~\cite{sanjay-irreg96} proposed to implementat the SKPDP algorithm on an
 early form of hardware accelerator called a WAP (Wavefront Array
@@ -241,8 +241,8 @@ Now applying the algorithm \ref{algo:MK} below to the lists (\ref{eq:list1}) and
  $S'_{i} \leftarrow $ $\langle weights[i], profits[i] \rangle$ added to each pairs of $S_i$\;
  $j,k,p \leftarrow 0,0,0$\;
  \While{the end of $S_i$ not reached}{
-  \uIf{$S_i[j].weight < S_i[k].weight$}{
-   	\eIf{$S_i[j].profit < S_i[k].profit$}{
+  \uIf{$S_i[j].weight < S'_i[k].weight$}{
+   	\eIf{$S_i[j].profit < S'_i[k].profit$}{
    		$S_{i+1}[p] \leftarrow  S_i[j]$\;
    		$p \leftarrow p+1$\;
    		$j \leftarrow j+1$\;
@@ -251,9 +251,9 @@ Now applying the algorithm \ref{algo:MK} below to the lists (\ref{eq:list1}) and
    		$k \leftarrow k+1$\;   	
    	}
    }
-   \uElseIf{$S_i[j].weight > S_i[k].weight$}{
-   	\eIf{$S_i[j].profit > S_i[k].profit$}{
-   		$S_{i+1}[p] \leftarrow  S_i[k]$\;
+   \uElseIf{$S_i[j].weight > S'_i[k].weight$}{
+   	\eIf{$S_i[j].profit > S'_i[k].profit$}{
+   		$S_{i+1}[p] \leftarrow  S'_i[k]$\;
    		$p \leftarrow p+1$\;
    		$k \leftarrow k+1$\;
    	} 	
@@ -262,7 +262,7 @@ Now applying the algorithm \ref{algo:MK} below to the lists (\ref{eq:list1}) and
    	}
   }
   \Else{
-   	\eIf{$S_i[j].profit > S_i[k].profit$}{
+   	\eIf{$S_i[j].profit > S'_i[k].profit$}{
    		$k \leftarrow k+1$\;
    	} 	
 	{

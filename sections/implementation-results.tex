@@ -1,12 +1,11 @@
 \chapter{Implementation and Results}
 \label{chap:implementation-results}
 
-\section{Experimental Setup}
-We do all our experiments on linux machines with \textit{Intel(R) Xeon(R) CPU E5-2650 v2} processors running at 2.60GHz with 32GB of RAM. The compiler used is \textit{Intel C++ Compiler} version 19.0.0.117. We used \textit{OpenMP } for implementing  prallelization on CPU.
 
 
-\section{Implementation details of sequential implementation of SKPDP algorithm}
-As we are not backtracking and instead using Divide and Conquer to find the complete solution, we allocate two arrays of pairs(critical points) of size $C$. Let, $(w_i,p_i)$ represent the weight and profit pair of the $i$-th element. We initially put $(w_0,p_0)$ into one of the allocated arrays. Then we apply the \textit{Add-Merge-Kill} process described in section --REFERENCE-- and store the output in the other allocated array. We iteratively find the last row of the sparse table.
+
+\section{Implementation details of sequential SKPDP algorithm}
+As we are not backtracking and instead using Divide and Conquer to find the complete solution, we allocate two arrays of pairs(critical points) of size $C$. Let, $(w_i,p_i)$ represent the weight and profit pair of the $i$-th element. We initially put $(w_0,p_0)$ into one of the allocated arrays. Then we apply the \textit{Add-Merge-Kill} process described in section \ref{sec:merge-kill} and store the output in the other allocated array. Note that, we do not need to use a separate temporary array $S'_i$ as described in algorithm \ref{algo:MK}. It is used for clarity. We iteratively find the last row of the sparse table.
 
 
 \section{Implementation details of Fine-grained parallelization of SKPDP algorithm}
@@ -16,17 +15,15 @@ For this parallelism to be applicable on a row, the row must conform to the crit
 \label{eq: fine-grained-criteria}
 l_{i-1} > \alpha P w_i
 \end{equation}
-where $l_{i-1}$ is length of the last calculated row, $\alpha$ is a parameter chosen to tune the parallelization strategy, $P$ is number of intended threads to be used (ideally equal to the number of processors) and $w_i$ is the weight of the current item to be taken into account for maximizing the total profit.
+where $l_{i-1}$ is length of the last calculated row, $\alpha>2$ is a parameter chosen to tune the parallelization strategy, $P$ is number of intended threads to be used (ideally equal to the number of processors) and $w_i$ is the weight of the current item to be taken into account for maximizing the total profit.
 
-Topmost rows of the SKPDP are calculated exactly as the sequential version of SKPDP until (\ref{eq: fine-grained-criteria}) is true. All subsequent rows are computed in $P$ separate chunks on $P$ different processors. So, we allocate a total of $2P$ additional arrays of pairs(structures) of size $C$. When we split the calculation of a single row between multiple threads we end up generating some extra point at each thread. So, ones all the threads are finished computing their own chunk of a row, we do a barrier synchronization and run a process called stitching between the $P$ threads. Stitching gets rid of the points that are dominated by points in the adjacent chunk. There are $P-1$ different stitching points which can be run on parallel on $P-1$ different threads. The process of stitching between two threads takes $2w_i$ iterations in the worst case ($2P w_i$ for the whole $i$-th row).
-
-
-
-\section{Implementation details of Coarse-grained/Pipelined of SKPDP algorithm}
+Topmost rows of the sparse table are calculated exactly as the sequential version of SKPDP until (\ref{eq: fine-grained-criteria}) is true. All subsequent rows are computed in $P$ separate chunks on $P$ different processors. So, we allocate a total of $2P$ additional arrays of pairs(structures) of size $C$. When we split the calculation of a single row between multiple threads we end up generating some extra point at each thread. So, once all the threads complete processing their own chunk of a row, we do a barrier synchronization and run a process called stitching between the $P$ threads. Stitching gets rid of the points that are dominated by points in the adjacent chunk. There are $P-1$ different stitching points which can be run on parallel on $P-1$ different threads. The process of stitching between two threads takes $2w_i$ iterations in the worst case ($2P w_i$ for the whole $i$-th row).
 
 
 
-[TODO]
+\section{Implementation details of Coarse-grained/Pipelined SKPDP algorithm}
+
+
 
 
 

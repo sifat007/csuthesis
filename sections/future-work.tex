@@ -1,0 +1,16 @@
+\chapter{Future work}
+
+\label{chap:future-work}
+
+
+\section{A model to predict the performance gain by SKPDP}
+At this point we know that as long as a knapsack problem instance does not have perfectly correlated weights and profits and $N \ll C$ we will get performance gain by using SKPDP. But, we don't have a model to predict whether for a given problem instance SKPDP will be better than conventional 0/1-KPDP. There could be ways to analyze a knapsack problem instance and predict the gain by SKPDP.
+
+\section{Ordering the items by weight values to maximize sparsity}
+We observed that re-ordering the items of a knapsack problem instance ends up producing slightly different sparsity (i.e. different iteration counts). More experimentation is required to figure out the optimal ordering of the items to maximize sparsity of SKPDP.
+
+\section{Improving the Course-grained parallelism of SKPDP}
+Our implementation of pipelining parallelism of SKPDP have some I/O operations that could potentially be avoided. Each thread maintains a ``Local Buffer'', an ``Input Buffer'' and an ``Output Buffer''. The last two buffers are used to facilitate barrier synchronization between threads. An implementation that does not use these two buffer may potentially outperform our current implementation.\\
+Also, we don't have a model to determine the optimal block size and thread count for the pipelined implementation. The execution times used to generate the figure \ref{fig:pipelined_vs_seq} were found by using a grid search method over those two parameters and taking the minimum run time, which is not optimal.
+
+
